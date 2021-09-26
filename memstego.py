@@ -2,6 +2,7 @@ import PIL
 import requests
 import webbrowser
 import json
+import math
 import tkinter as tk
 from tkinter import font
 from PIL import ImageTk, Image
@@ -22,7 +23,6 @@ IV = "5kj14av0cq19q90b"
 #logo = ""
 
 selected_meme_url = ""
-
 
 def main():
     # Main window properties
@@ -72,10 +72,7 @@ def pad_message(message: str) -> str:
 
 def binary_sequenced(message: str) -> str:
     binary_representation = ''.join(format(ord(char), '08b') for char in message)
-    binary_representation = str(binary_representation) + "0000000000000000"
-    # Padding the binary sequence with additinal bites for correct pixel encoding
-    while len(binary_representation) % 3 != 0:
-        binary_representation += "0"
+    binary_representation = str(binary_representation)
     # print(str(binary_representation))
     return binary_representation
 
@@ -101,6 +98,16 @@ def binary_to_string(binary_sequence: str) -> str:
         character = chr(character_code)
         normalized_message += character
 
+def strbin_to_int(strbin: str) -> int:
+    length = len(strbin)
+    number = 0
+    power = 0
+    for i in range(0, length):
+        number = number + (int(strbin[length - i - 1]) * math.pow(2, power))
+        power += 1
+    return number
+
+
 def message_encryption(password: str, message: str) -> str:
     key = hash_password(password)
     cipher = AES.new(key, MODE, IV)
@@ -120,89 +127,175 @@ def message_decryption(password: str, message: str) -> str:
     
 def bytes_extraction(image_url: str) -> str:
     byte_sequence = ""
+
     try:
         image = Image.open(image_url)
-        image.show()
-        width, height = image.size
+        #image.show()
+        width = image.width
+        height = image.height
 
-        rgb_image = image.convert("RGB")
+        print("extraction 1")
+        rgb_image = image.convert("RGBA")
+        rgb_pixel = []
+        print("extraction 1.0")
+        groups_counter, character_counter, px, py = get_message_info(image_url)
+        print("extraction 1.1")
+        characters_to_collect = strbin_to_int(character_counter)
+        message_info_space = 8 + (strbin_to_int(groups_counter) * 8)
+        position = 0
+        needed_bits = (characters_to_collect * 8) + message_info_space
+        print("extraction 2\n" + characters_to_collect +"\t" + message_info_space + "\t" << needed_bits)
+        for x in range(0, width):
+            for y in range(0, height):
+                rgb_pixel = list(rgb_image.getpixel((x, y)))
+                # print(rgb_pixel)
+                for i in range(0, 4):
+                    if (position > message_info_space and position <= needed_bits):
+                        byte_sequence += str(rgb_pixel[i] % 2)
+                        print(byte_sequence)
 
-        for r in range(0, height):
-            for c in range(0, width):
-                rgb_pixel = rgb_image.getpixel((r, c))
-                print(rgb_pixel)
-                for i in range(0, 3):
-                    byte_sequence += str(rgb_pixel[i] % 2)
+                    if position > message_info_space:
+                        return byte_sequence
+                    position += 1
+
         return byte_sequence
 
     except:
         pass # TODO
 
-def bytes_insertion(image_base, byte_sequence: str) -> None:
+def bytes_insertion(image_base, byte_sequence) -> None:
     try:
         image = Image.open(image_base)
-        # image.show()
-        width, height = image.size
-
+        image.show()
+        width = image.width
+        height = image.height
+        print(width, "-", height)
         
-        rgb_image = image.convert("RGB")
-        rgb_image.show()
+        rgb_image = image.convert("RGBA")
+        # rgb_image.show()
         byte_cur = 0
         length = len(byte_sequence)
         # print(length)
-        for r in range(0, height):
-            for c in range(0, width):
-                rgb_pixel = rgb_image.getpixel((r, c))
+        for x in range(0, width):
+            for y in range(0, height):
+                rgb_pixel = rgb_image.getpixel((x, y))
                 new_pixel = list(rgb_pixel)
                 # print("-")
-                # print(rgb_pixel)
-                for i in range(0, 3):
+                # print(new_pixel)
+                for i in range(0, 4):
                     if byte_cur == length:
-                        print("Insertation")
-                        print(rgb_image.getpixel((0,0)))
-                        print(rgb_image.getpixel((0,1)))
-                        print(rgb_image.getpixel((0,2)))
-                        print(rgb_image.getpixel((0,3)))
-                        image.save(select_directory_to_save())
+                        rgb_image.show()
+                        rgb_image.save(select_directory_to_save())
                         return
                     # print(".")
                     # print(rgb_pixel[i])
                     # print(str(byte_sequence[byte_cur]))
                     if rgb_pixel[i] % 2 != int(byte_sequence[byte_cur]):
                         if rgb_pixel[i] != 0:
-                            if byte_sequence[byte_cur] != '0':
-                                new_pixel[i] = 0
-                                #rgb_pixel[i] = 0 # rgb_pixel[i] + 1
-                            else:
-                                new_pixel[i] = 0
-                                #rgb_pixel[i] = 0 # rgb_pixel[i] - 1
-                        else:
                             if byte_sequence[byte_cur] == '1':
-                                new_pixel[i] = 0
-                                #rgb_pixel[i] = 0 # rgb_pixel[i] + 1
+                                new_pixel[i] = rgb_pixel[i] + 1
+                            else:
+                                new_pixel[i] = rgb_pixel[i] - 1
+                        else:
+                            new_pixel[i] = rgb_pixel[i] + 1
                     else:
-                        new_pixel[i] = 0
-                        byte_cur += 1
-                        #rgb_pixel[i] = 0 # rgb_pixel[i]
+                        new_pixel[i] = rgb_pixel[i]
+                    byte_cur += 1 
+
+                rgb_image.putpixel((x, y), tuple(new_pixel))
                 print(new_pixel)
-                rgb_image.putpixel((r, c), tuple(new_pixel))
                     
+        rgb_image.show()
         rgb_image.save(select_directory_to_save())
         print("hello")
         return
 
     except:
+        print("upsie")
         pass # TODO
 
 
+def get_message_info(image_url: str) -> tuple:
+    print("get_message_info -1")
+    strbin_repres_groups_number = ""
+    int_groups_number = 0
+    strbin_repres_character_number= ""
+    int_character_number = 0
+
+    general_counter = 0
+
+    image = Image.open(image_url)
+    image.show()
+    width = image.width
+    height = image.height
+
+    rgb_image = image.convert("RGBA")
+    rgb_pixel = []
+
+    print("get_message_info 0")
+    for x in range(0, width):
+        for y in range(0, height):
+            rgb_pixel = rgb_image.getpixel((x, y))
+            new_pixel = list(rgb_pixel)
+            print(new_pixel)
+            # print(new_pixel):
+            if general_counter < 8:
+                for i in range(0, 4):
+                    print(strbin_repres_groups_number)
+                    strbin_repres_groups_number = strbin_repres_groups_number + str(new_pixel[i] % 2)
+                    general_counter += 1
+                continue
+
+            int_groups_number = strbin_to_int(strbin_repres_groups_number)
+
+            if general_counter < (int_groups_number * 8):
+                for i in range(0, 4):
+                    print("ch")
+                    strbin_repres_character_number = strbin_repres_character_number + str(new_pixel[i] % 2)
+                    general_counter += 1
+                continue
+
+            break
+
+    print("ending is near")
+    return tuple(int_groups_number, int_character_number, x, y)
+
+
+
+def put_message_info(encrypted_message: str) -> str:
+    message_length = len(encrypted_message)
+    groups_counter = ""
+    character_counter = ""
+    
+    length = message_length
+    while length >= 1:
+        character_counter = str(length % 2) + character_counter
+        length = length // 2
+
+    while len(character_counter) % 8 != 0:
+        character_counter = "0" + character_counter
+
+    needed_bytes = len(character_counter) / 8
+    needed_bytes = math.ceil(needed_bytes)
+
+    while needed_bytes >= 1:
+        groups_counter = str(needed_bytes % 2) + groups_counter
+        needed_bytes = needed_bytes // 2
+
+    while len(groups_counter) % 8 != 0:
+        groups_counter = "0" + groups_counter
+
+    print(groups_counter)
+    print(character_counter)
+    return groups_counter + character_counter
+    
 
 def preview_meme():
     webbrowser.open_new(selected_meme_url)
 
 def select_image():
     allowed_filetypes = (
-        ("JPG files", "*.jpg"),
-        ("PNG files", "*.png")
+        ("PNG files", "*.png"),
     )
 
     filename = fd.askopenfilename(title="Open a file", initialdir="/", filetypes=allowed_filetypes)
@@ -216,8 +309,7 @@ def select_message():
 
 def select_directory_to_save() -> str:
     filename = fd.asksaveasfile(title="Save file")
-    print(filename.name)
-    return filename
+    return filename.name
 
 def generate_meme():
     global selected_meme_url
@@ -240,6 +332,7 @@ def image_crypt(image_url: str, message_url: str, password: str) -> None:
 
         encrypted_message = message_encryption(password, message)
         binary_represented_message = binary_sequenced(encrypted_message)
+        binary_represented_message = put_message_info(encrypted_message) + binary_represented_message
         bytes_insertion(image, binary_represented_message)
 
         # print(encrypted_message)
@@ -260,9 +353,10 @@ def meme_crypt(message_url: str, password: str) -> None:
 
         encrypted_message = message_encryption(password, message)
         binary_represented_message = binary_sequenced(encrypted_message)
+        binary_represented_message = put_message_info(encrypted_message) + binary_represented_message
         bytes_insertion(image, binary_represented_message)
         # print("Base64: " + encrypted_message)
-        print("Binary: " + binary_represented_message)
+        # print("Binary: " + binary_represented_message)
         # print("Decrypted from Base64: " + message_decryption(password, encrypted_message))
         # print("Base64 from binary: " + binary_to_string(binary_represented_message))
         # print("UTF-8 from binary: " + message_decryption(password, binary_to_string(binary_represented_message)))
@@ -272,14 +366,18 @@ def meme_crypt(message_url: str, password: str) -> None:
         pass # TODO
 
 def decrypt(image_url: str, password: str) -> str:
+    print("decrypt")
     try:
         binary_represented_message = bytes_extraction(image_url)
+        print("decrypt fault 1")
         print(binary_represented_message + "||")
+        print("decrypt fault 2")
         print(binary_to_string(binary_represented_message) + "||")
         message = message_decryption(password, binary_to_string(binary_represented_message))
         print(message + "||")
         return message
     except:
+        print("decrypt fault")
         pass # TODO
 
 
