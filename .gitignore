@@ -1,3 +1,7 @@
 test1.py
 test2.py
-message.txt
+*.txt
+*.png
+.vscode
+__pycache__
+show_bytes.py
