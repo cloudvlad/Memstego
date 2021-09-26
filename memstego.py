@@ -105,7 +105,7 @@ def strbin_to_int(strbin: str) -> int:
     for i in range(0, length):
         number = number + (int(strbin[length - i - 1]) * math.pow(2, power))
         power += 1
-    return number
+    return int(number)
 
 
 def message_encryption(password: str, message: str) -> str:
@@ -138,29 +138,34 @@ def bytes_extraction(image_url: str) -> str:
         rgb_image = image.convert("RGBA")
         rgb_pixel = []
         print("extraction 1.0")
-        groups_counter, character_counter, px, py = get_message_info(image_url)
+        groups_counter, character_counter = get_message_info(image_url)
+        print(groups_counter)
+        print(character_counter)
         print("extraction 1.1")
         characters_to_collect = strbin_to_int(character_counter)
-        message_info_space = 8 + (strbin_to_int(groups_counter) * 8)
-        position = 0
+        message_info_space = ((strbin_to_int(groups_counter) + 1) * 8)
+
         needed_bits = (characters_to_collect * 8) + message_info_space
-        print("extraction 2\n" + characters_to_collect +"\t" + message_info_space + "\t" << needed_bits)
+
+        print(".")
+        print("extraction 2\n" + str(characters_to_collect) +"\t" + str(message_info_space) + "\t" + str(needed_bits))
         for x in range(0, width):
             for y in range(0, height):
                 rgb_pixel = list(rgb_image.getpixel((x, y)))
                 # print(rgb_pixel)
                 for i in range(0, 4):
-                    if (position > message_info_space and position <= needed_bits):
+                    if (len(byte_sequence) < needed_bits):
                         byte_sequence += str(rgb_pixel[i] % 2)
-                        print(byte_sequence)
+                        continue
+                    break
 
-                    if position > message_info_space:
-                        return byte_sequence
-                    position += 1
+            if len(byte_sequence) == needed_bits:
+                return byte_sequence[message_info_space:needed_bits]
 
-        return byte_sequence
+        return byte_sequence[message_info_space:needed_bits]
 
     except:
+        print("bytes_extraction fault")
         pass # TODO
 
 def bytes_insertion(image_base, byte_sequence) -> None:
@@ -218,10 +223,9 @@ def bytes_insertion(image_base, byte_sequence) -> None:
 def get_message_info(image_url: str) -> tuple:
     print("get_message_info -1")
     strbin_repres_groups_number = ""
-    int_groups_number = 0
     strbin_repres_character_number= ""
     int_character_number = 0
-
+    global x, y
     general_counter = 0
 
     image = Image.open(image_url)
@@ -237,28 +241,27 @@ def get_message_info(image_url: str) -> tuple:
         for y in range(0, height):
             rgb_pixel = rgb_image.getpixel((x, y))
             new_pixel = list(rgb_pixel)
-            print(new_pixel)
+            # print(new_pixel)
             # print(new_pixel):
             if general_counter < 8:
                 for i in range(0, 4):
-                    print(strbin_repres_groups_number)
                     strbin_repres_groups_number = strbin_repres_groups_number + str(new_pixel[i] % 2)
                     general_counter += 1
+                    int_groups_number = strbin_to_int(strbin_repres_groups_number)
                 continue
 
-            int_groups_number = strbin_to_int(strbin_repres_groups_number)
-
-            if general_counter < (int_groups_number * 8):
+            if general_counter < ((int_groups_number + 1) * 8):
                 for i in range(0, 4):
-                    print("ch")
                     strbin_repres_character_number = strbin_repres_character_number + str(new_pixel[i] % 2)
                     general_counter += 1
                 continue
 
             break
-
-    print("ending is near")
-    return tuple(int_groups_number, int_character_number, x, y)
+    int_character_number = strbin_to_int(strbin_repres_character_number)
+    print(int_groups_number)
+    print(int_character_number)
+    print("get_message_info_end")
+    return strbin_repres_groups_number, strbin_repres_character_number
 
 
 
