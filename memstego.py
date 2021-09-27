@@ -62,7 +62,7 @@ def main():
 
 """ Help functions for steganography methods"""
 # Hash the password
-def hash_password(password: str) -> bytes: # err
+def hash_password(password: str) -> str: # err
     encoded_password = password.encode()
     hashed_password = hashlib.sha256(encoded_password)
     return hashed_password.digest()
@@ -113,16 +113,15 @@ def message_encryption(password: str, message: str) -> str:
     padded_message = pad_message(message)
     encrypted_message = cipher.encrypt(padded_message)
     encoded_message = base64.b64encode(encrypted_message)
-    # print(encoded_message.decode())
     return encoded_message.decode()
 
 # Decrypts message
 def message_decryption(password: str, message: str) -> str:
+    print("message decryption\n" + message)
     key = hash_password(password)
     cipher = AES.new(key, MODE, IV)
     decoded_message = base64.b64decode(message)
     decrypted_message = cipher.decrypt(decoded_message)
-
     return decrypted_message.rstrip().decode()
 
 # Extract the least significant byte from every pixel 
@@ -217,7 +216,7 @@ def get_message_info(image_url: str) -> tuple:
     general_counter = 0
 
     image = Image.open(image_url)
-    image.show()
+    # image.show()
     width = image.width
     height = image.height
 
@@ -286,19 +285,19 @@ def select_image():
         ("PNG files", "*.png"),
     )
 
-    filename = fd.askopenfilename(title="Open a file", initialdir="/", filetypes=allowed_filetypes)
+    filename = fd.askopenfilename(title="Open a file", initialdir=os.curdir, filetypes=allowed_filetypes)
 
     return filename
 
 # Select message from local storage
 def select_message():
     allowed_filetypes = (("text files", "*.txt"),)
-    filename = fd.askopenfilename(title="Open a file", initialdir="/", filetypes=allowed_filetypes)
+    filename = fd.askopenfilename(title="Open a file", initialdir=os.curdir, filetypes=allowed_filetypes)
     return filename
 
 # Select directory to save a file
 def select_directory_to_save() -> str:
-    filename = fd.asksaveasfile(title="Save file")
+    filename = fd.asksaveasfile(title="Save file", initialdir=os.curdir)
     return filename.name
 
 # Generate meme
@@ -347,13 +346,15 @@ def meme_crypt(message_url: str, password: str) -> None:
 def decrypt(image_url: str, password: str) -> None:
     try:
         binary_represented_message = bytes_extraction(image_url)
+        print(binary_represented_message)
+        message = binary_represented_message
         message = message_decryption(password, binary_to_string(binary_represented_message))
-        message_file = open("secret_message.txt", "w")
-        message_file.write(message)
-        message_file.close()
-        return message
-    except:
-        print("decrypt fault")
+        # message_file = open("secret_message.txt", "w")
+        # message_file.write(message)
+        # message_file.close()
+        print(message)
+    except Exception as e:
+        print(e)
         pass # TODO
 
 
