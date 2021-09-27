@@ -7,7 +7,7 @@ import tkinter as tk
 from tkinter import font
 from PIL import ImageTk, Image
 from tkinter import ttk, filedialog as fd
-from tkinter.messagebox import showinfo
+from tkinter.messagebox import showerror
 from tkinter.font import BOLD
 from io import BytesIO
 from random import randrange
@@ -15,6 +15,7 @@ import hashlib
 import base64
 from Crypto.Cipher import AES
 import os
+import sys
 
 BACKGROUND_COLOR = "#FFFFFF"
 
@@ -62,7 +63,7 @@ def main():
 
 """ Help functions for steganography methods"""
 # Hash the password
-def hash_password(password: str) -> str: # err
+def hash_password(password: str) -> bytes:
     encoded_password = password.encode()
     hashed_password = hashlib.sha256(encoded_password)
     return hashed_password.digest()
@@ -117,7 +118,6 @@ def message_encryption(password: str, message: str) -> str:
 
 # Decrypts message
 def message_decryption(password: str, message: str) -> str:
-    print("message decryption\n" + message)
     key = hash_password(password)
     cipher = AES.new(key, MODE, IV)
     decoded_message = base64.b64decode(message)
@@ -158,33 +158,30 @@ def bytes_extraction(image_url: str) -> str:
         pass # TODO
 
 # Writes the bytes in the least significant bytes in the pixels
-def bytes_insertion(image_base, byte_sequence) -> None:
+def bytes_insertion(image_base, byte_sequence) -> bool:
     try:
         image = Image.open(image_base)
-        image.show()
         width = image.width
         height = image.height
-        print(width, "-", height)
         
+        if (width * height * 4) < len(byte_sequence):
+            showerror("Message error", "The message is too long to be hidden in this image.\nTry using another image or spliting the message")
+            return
+
         rgb_image = image.convert("RGBA")
-        # rgb_image.show()
+
         byte_cur = 0
         length = len(byte_sequence)
-        # print(length)
+
         for x in range(0, width):
             for y in range(0, height):
                 rgb_pixel = rgb_image.getpixel((x, y))
                 new_pixel = list(rgb_pixel)
-                # print("-")
-                # print(new_pixel)
                 for i in range(0, 4):
                     if byte_cur == length:
-                        rgb_image.show()
                         rgb_image.save(select_directory_to_save())
                         return
-                    # print(".")
-                    # print(rgb_pixel[i])
-                    # print(str(byte_sequence[byte_cur]))
+
                     if rgb_pixel[i] % 2 != int(byte_sequence[byte_cur]):
                         if rgb_pixel[i] != 0:
                             if byte_sequence[byte_cur] == '1':
@@ -198,16 +195,12 @@ def bytes_insertion(image_base, byte_sequence) -> None:
                     byte_cur += 1 
 
                 rgb_image.putpixel((x, y), tuple(new_pixel))
-                print(new_pixel)
                     
-        rgb_image.show()
         rgb_image.save(select_directory_to_save())
-        print("hello")
         return
 
-    except:
-        print("upsie")
-        pass # TODO
+    except Exception as e:
+        print(e)
 
 # Extracts the message info (message head)
 def get_message_info(image_url: str) -> tuple:
@@ -216,7 +209,6 @@ def get_message_info(image_url: str) -> tuple:
     general_counter = 0
 
     image = Image.open(image_url)
-    # image.show()
     width = image.width
     height = image.height
 
@@ -268,8 +260,6 @@ def put_message_info(encrypted_message: str) -> str:
     while len(groups_counter) % 8 != 0:
         groups_counter = "0" + groups_counter
 
-    print(groups_counter)
-    print(character_counter)
     return groups_counter + character_counter
     
 
@@ -312,23 +302,32 @@ def generate_meme():
 
 """ Data operations (Steganography methods) """
 def image_crypt(image_url: str, message_url: str, password: str) -> None:
-    try:
-        image = image_url
+    if len(image_url) == 0:
+        showerror("Empty field", "Image selection is required! ")
+        return
 
+    if len(message_url) == 0:
+        showerror("Empty field", "Message selection is required! ")
+        return
+
+    try:
         message_file = open(message_url, "r")
         message = message_file.read()
         message_file.close()
-
+        
         encrypted_message = message_encryption(password, message)
         binary_represented_message = binary_sequenced(encrypted_message)
         binary_represented_message = put_message_info(encrypted_message) + binary_represented_message
-        bytes_insertion(image, binary_represented_message)
-        return
+        bytes_insertion(image_url, binary_represented_message)
 
-    except:
-        pass # TODO
+    except Exception as e:
+        print("Oops!", sys.exc_info()[0].__name__, "error occured!")
 
 def meme_crypt(message_url: str, password: str) -> None:
+    if len(message_url) == 0:
+        showerror("Empty field", "Message selection is required! ")
+        return
+
     try:
         image = BytesIO((requests.get(selected_meme_url)).content)
 
@@ -340,22 +339,22 @@ def meme_crypt(message_url: str, password: str) -> None:
         binary_represented_message = binary_sequenced(encrypted_message)
         binary_represented_message = put_message_info(encrypted_message) + binary_represented_message
         bytes_insertion(image, binary_represented_message)
-    except:
-        pass # TODO
+    except Exception as e:
+        print("Oops!", sys.exc_info()[0].__name__, "error occured!")
 
 def decrypt(image_url: str, password: str) -> None:
+    if len(image_url) == 0:
+        showerror("Empty field", "Image selection is required! ")
+        return
     try:
         binary_represented_message = bytes_extraction(image_url)
-        print(binary_represented_message)
         message = binary_represented_message
         message = message_decryption(password, binary_to_string(binary_represented_message))
-        # message_file = open("secret_message.txt", "w")
-        # message_file.write(message)
-        # message_file.close()
-        print(message)
+        message_file = open("secret_message.txt", "w")
+        message_file.write(message)
+        message_file.close()
     except Exception as e:
-        print(e)
-        pass # TODO
+        print("Oops!", sys.exc_info()[0].__name__, "error occured!")
 
 
 
@@ -366,14 +365,14 @@ def create_crypt_tab(root: tk.Tk):
     image_url_label.place(x=50, y=50, width=200, height=30)
     image_url = tk.Entry(frame, relief="flat", font=("Arial", 12))
     image_url.place(x=50, y=80, width=400, height=30)
-    image_selection = tk.Button(frame, text="...", relief="flat", width=1, height=1, background="#FFFFFF", command=lambda: image_url.insert(0, select_image()))
+    image_selection = tk.Button(frame, text="...", relief="flat", width=1, height=1, background="#FFFFFF", command=lambda: [image_url.delete(0, "end"), image_url.insert(0, select_image())])
     image_selection.place(x=450, y=80, width=30, height=30)
 
     message_url_label = ttk.Label(frame, text="*Select message (.txt): ", font=("Arial", 12))
     message_url_label.place(x=50, y=150, width=200, height=30)
     message_url = tk.Entry(frame, relief="flat", font=("Arial", 12))
     message_url.place(x=50, y=180, width=400, height=30)
-    message_selection = tk.Button(frame, text="...", relief="flat", width=1, height=1, background="#FFFFFF", command=lambda: message_url.insert(0, select_message()))
+    message_selection = tk.Button(frame, text="...", relief="flat", width=1, height=1, background="#FFFFFF", command=lambda: [message_url.delete(0, "end"), message_url.insert(0, select_message())])
     message_selection.place(x=450, y=180, width=30, height=30)
 
     password_label = ttk.Label(frame, text="Password: ", font=("Arial", 12))
@@ -392,7 +391,7 @@ def create_decrypt_tab(root: tk.Tk):
     image_url_label.place(x=50, y=50, width=200, height=30)
     image_url = tk.Entry(frame, relief="flat", font=("Arial", 12))
     image_url.place(x=50, y=80, width=400, height=30)
-    image_selection = tk.Button(frame, text="...", relief="flat", width=1, height=1, background="#FFFFFF", command=lambda: image_url.insert(0, select_image()))
+    image_selection = tk.Button(frame, text="...", relief="flat", width=1, height=1, background="#FFFFFF", command=lambda: [image_url.delete(0, "end"), image_url.insert(0, select_image())])
     image_selection.place(x=450, y=80, width=30, height=30)
 
     password_label = ttk.Label(frame, text="Password: ", font=("Arial", 12))
@@ -420,7 +419,7 @@ def create_memecrypt_tab(root: tk.Tk):
     message_url_label.place(x=50, y=150, width=200, height=30)
     message_url = tk.Entry(frame, relief="flat", font=("Arial", 12))
     message_url.place(x=50, y=180, width=400, height=30)
-    message_selection = tk.Button(frame, text="...", relief="flat", width=1, height=1, background="#FFFFFF", command=lambda: message_url.insert(0, select_message()))
+    message_selection = tk.Button(frame, text="...", relief="flat", width=1, height=1, background="#FFFFFF", command=lambda: [message_url.delete(0, "end"), message_url.insert(0, select_message())])
     message_selection.place(x=450, y=180, width=30, height=30)
 
     password_label = ttk.Label(frame, text="Password: ", font=("Arial", 12))
