@@ -108,21 +108,51 @@ def strbin_to_int(strbin: str) -> int:
     return int(number)
 
 # Encrypts message
-def message_encryption(password: str, message: str) -> str:
+def message_encryption(password: str, message: bytes) -> str:
     key = hash_password(password)
     cipher = AES.new(key, MODE, IV)
-    padded_message = pad_message(message)
+
+    base64_encoded_message = base64.b64encode(message)
+    utf8_decoded_message = base64_encoded_message.decode()
+    print("UTF8 Decoded message: ", utf8_decoded_message)
+    padded_message = pad_message(utf8_decoded_message)
+    print("Padded message: ", padded_message)
     encrypted_message = cipher.encrypt(padded_message)
-    encoded_message = base64.b64encode(encrypted_message)
-    return encoded_message.decode()
+    print("Encrypted message: ", encrypted_message)
+
+
+    iterable_sequance = (base64.b64encode(encrypted_message)).decode()
+
+    while (len(iterable_sequance) % 4 != 0):
+        iterable_sequance = iterable_sequance + ' '
+    print("Iterable message: ", len(iterable_sequance), " ", iterable_sequance)
+    return iterable_sequance
 
 # Decrypts message
 def message_decryption(password: str, message: str) -> str:
-    key = hash_password(password)
-    cipher = AES.new(key, MODE, IV)
-    decoded_message = base64.b64decode(message)
-    decrypted_message = cipher.decrypt(decoded_message)
-    return decrypted_message.rstrip().decode()
+    try:
+        key = hash_password(password)
+        cipher = AES.new(key, MODE, IV)
+        print("hello message: ",len(message), " ", message)
+        decrypted_message = cipher.decrypt(base64.b64decode(message))
+        print(".")
+        decoded_message = decrypted_message
+        print(".")
+        depadded_message = decoded_message.rstrip()
+        print(".")
+        encoded_message = depadded_message
+        print(".")
+        base64_decoded_message = base64.b64decode(encoded_message)
+        print(".")
+        utf8_decoded_message = base64_decoded_message.decode()
+        print(".")
+        print(utf8_decoded_message)
+    except:
+        utf8_decoded_message = base64_decoded_message.decode(errors="replace")
+        print(".")
+        print(utf8_decoded_message)
+
+    return utf8_decoded_message.encode()
 
 # Extract the least significant byte from every pixel 
 def bytes_extraction(image_url: str) -> str:
@@ -154,8 +184,8 @@ def bytes_extraction(image_url: str) -> str:
 
         return byte_sequence[message_info_space:needed_bits]
 
-    except:
-        pass # TODO
+    except Exception as e:
+        print(e)
 
 # Writes the bytes in the least significant bytes in the pixels
 def bytes_insertion(image_base, byte_sequence) -> bool:
@@ -311,7 +341,7 @@ def image_crypt(image_url: str, message_url: str, password: str) -> None:
         return
 
     try:
-        message_file = open(message_url, "r")
+        message_file = open(message_url, "rb")
         message = message_file.read()
         message_file.close()
         
@@ -321,7 +351,7 @@ def image_crypt(image_url: str, message_url: str, password: str) -> None:
         bytes_insertion(image_url, binary_represented_message)
 
     except Exception as e:
-        print("Oops!", sys.exc_info()[0].__name__, "error occured!")
+        print(e)
 
 def meme_crypt(message_url: str, password: str) -> None:
     if len(message_url) == 0:
@@ -331,7 +361,7 @@ def meme_crypt(message_url: str, password: str) -> None:
     try:
         image = BytesIO((requests.get(selected_meme_url)).content)
 
-        message_file = open(message_url, "r")
+        message_file = open(message_url, "rb")
         message = message_file.read()
         message_file.close()
 
@@ -340,7 +370,7 @@ def meme_crypt(message_url: str, password: str) -> None:
         binary_represented_message = put_message_info(encrypted_message) + binary_represented_message
         bytes_insertion(image, binary_represented_message)
     except Exception as e:
-        print("Oops!", sys.exc_info()[0].__name__, "error occured!")
+        print(e)
 
 def decrypt(image_url: str, password: str) -> None:
     if len(image_url) == 0:
@@ -350,12 +380,12 @@ def decrypt(image_url: str, password: str) -> None:
         binary_represented_message = bytes_extraction(image_url)
         message = binary_represented_message
         message = message_decryption(password, binary_to_string(binary_represented_message))
-        message_file = open("secret_message.txt", "w")
+        print("Bip", message)
+        message_file = open("secret_message.txt", "bw")
         message_file.write(message)
         message_file.close()
     except Exception as e:
-        print("Oops!", sys.exc_info()[0].__name__, "error occured!")
-
+        print("Hello1", e)
 
 
 """ Tab Creation """
