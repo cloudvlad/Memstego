@@ -5,7 +5,7 @@ import json
 import math
 import tkinter as tk
 from tkinter import font
-from PIL import ImageTk, Image
+from PIL import Image
 from tkinter import ttk, filedialog as fd
 from tkinter.messagebox import showerror
 from tkinter.font import BOLD
@@ -29,6 +29,7 @@ selected_meme_url = ""
 def main():
     # Main window properties
     main = tk.Tk(className="Mem" + "Stego")
+    main.bind('<Control-z>', quit)
     main.title("MemStego")
     main.geometry("600x500")
     main.resizable(False, False)
@@ -57,7 +58,7 @@ def main():
     tabControl.add(memecrypt_tab, text="MemeCrypt")
 
     tabControl.pack(expand=1, fill="both")
-
+    
     main.mainloop()
 
 
@@ -114,18 +115,18 @@ def message_encryption(password: str, message: bytes) -> str:
 
     base64_encoded_message = base64.b64encode(message)
     utf8_decoded_message = base64_encoded_message.decode()
-    print("UTF8 Decoded message: ", utf8_decoded_message)
+    #print("UTF8 Decoded message: ", utf8_decoded_message)
     padded_message = pad_message(utf8_decoded_message)
-    print("Padded message: ", padded_message)
+    #print("Padded message: ", padded_message)
     encrypted_message = cipher.encrypt(padded_message)
-    print("Encrypted message: ", encrypted_message)
+    #print("Encrypted message: ", encrypted_message)
 
 
     iterable_sequance = (base64.b64encode(encrypted_message)).decode()
 
     while (len(iterable_sequance) % 4 != 0):
         iterable_sequance = iterable_sequance + ' '
-    print("Iterable message: ", len(iterable_sequance), " ", iterable_sequance)
+    #print("Iterable message: ", len(iterable_sequance), " ", iterable_sequance)
     return iterable_sequance
 
 # Decrypts message
@@ -133,26 +134,25 @@ def message_decryption(password: str, message: str) -> str:
     try:
         key = hash_password(password)
         cipher = AES.new(key, MODE, IV)
-        print("hello message: ",len(message), " ", message)
+        #print("hello message: ",len(message), " ", message)
         decrypted_message = cipher.decrypt(base64.b64decode(message))
-        print(".")
+        #print(".")
         decoded_message = decrypted_message
-        print(".")
+        #print(".")
         depadded_message = decoded_message.rstrip()
-        print(".")
+        #print(".")
         encoded_message = depadded_message
-        print(".")
+        #print(".")
         base64_decoded_message = base64.b64decode(encoded_message)
-        print(".")
-        utf8_decoded_message = base64_decoded_message.decode()
-        print(".")
-        print(utf8_decoded_message)
+        #print(".")
+        utf8_decoded_message = base64_decoded_message.decode(errors="ignore")
+        #print(".")
+        #print(utf8_decoded_message)
+        return utf8_decoded_message.encode()
     except:
-        utf8_decoded_message = base64_decoded_message.decode(errors="replace")
-        print(".")
-        print(utf8_decoded_message)
+        pass
 
-    return utf8_decoded_message.encode()
+    
 
 # Extract the least significant byte from every pixel 
 def bytes_extraction(image_url: str) -> str:
@@ -164,7 +164,7 @@ def bytes_extraction(image_url: str) -> str:
 
         rgb_image = image.convert("RGBA")
 
-        groups_counter, character_counter = get_message_info(image_url)
+        groups_counter, character_counter = fetch_message_info(image_url)
         characters_to_collect = strbin_to_int(character_counter)
         message_info_space = ((strbin_to_int(groups_counter) + 1) * 8)
 
@@ -233,7 +233,7 @@ def bytes_insertion(image_base, byte_sequence) -> bool:
         print(e)
 
 # Extracts the message info (message head)
-def get_message_info(image_url: str) -> tuple:
+def fetch_message_info(image_url: str) -> tuple:
     strbin_repres_groups_number = ""
     strbin_repres_character_number= ""
     general_counter = 0
@@ -267,7 +267,7 @@ def get_message_info(image_url: str) -> tuple:
     return strbin_repres_groups_number, strbin_repres_character_number
 
 # Writes the message info (message head)
-def put_message_info(encrypted_message: str) -> str:
+def calculate_message_info(encrypted_message: str) -> str:
     message_length = len(encrypted_message)
     groups_counter = ""
     character_counter = ""
@@ -277,11 +277,13 @@ def put_message_info(encrypted_message: str) -> str:
         character_counter = str(length % 2) + character_counter
         length = length // 2
 
+
+    # Padding the characters counter
     while len(character_counter) % 8 != 0:
         character_counter = "0" + character_counter
 
-    needed_bytes = len(character_counter) / 8
-    needed_bytes = math.ceil(needed_bytes)
+    # Calculate the number of bytes from needed bits
+    needed_bytes = len(character_counter) // 8
 
     while needed_bytes >= 1:
         groups_counter = str(needed_bytes % 2) + groups_counter
@@ -290,6 +292,8 @@ def put_message_info(encrypted_message: str) -> str:
     while len(groups_counter) % 8 != 0:
         groups_counter = "0" + groups_counter
 
+    #print(groups_counter, " - ", character_counter)
+    
     return groups_counter + character_counter
     
 
@@ -323,11 +327,15 @@ def select_directory_to_save() -> str:
 # Generate meme
 def generate_meme():
     global selected_meme_url
-    all_memes = json.loads((requests.get('https://api.memegen.link/images/').content).decode("utf-8"))
-    selected_meme_url = (all_memes[randrange(len(all_memes))])['url']
-    if len(selected_meme_url) > 60:
-        return selected_meme_url[0:57] + "..."
-    return selected_meme_url
+    try:
+        all_memes = json.loads((requests.get('https://api.memegen.link/images/').content).decode("utf-8"))
+        selected_meme_url = (all_memes[randrange(len(all_memes))])['url']
+        if len(selected_meme_url) > 60:
+            return selected_meme_url[0:57] + "..."
+        return selected_meme_url
+    except Exception as e:
+        selected_meme_url = "https://google.com"
+        return "Connection error! Check your internet connection."
 
 
 """ Data operations (Steganography methods) """
@@ -345,10 +353,14 @@ def image_crypt(image_url: str, message_url: str, password: str) -> None:
         message = message_file.read()
         message_file.close()
         
-        encrypted_message = message_encryption(password, message)
-        binary_represented_message = binary_sequenced(encrypted_message)
-        binary_represented_message = put_message_info(encrypted_message) + binary_represented_message
-        bytes_insertion(image_url, binary_represented_message)
+        if len(message) != 0:
+            encrypted_message = message_encryption(password, message)
+            binary_represented_message = binary_sequenced(encrypted_message)
+            binary_represented_message = calculate_message_info(encrypted_message) + binary_represented_message
+            bytes_insertion(image_url, binary_represented_message)
+            return
+        
+        bytes_insertion(image_url, "0000000000000000")
 
     except Exception as e:
         print(e)
@@ -367,7 +379,7 @@ def meme_crypt(message_url: str, password: str) -> None:
 
         encrypted_message = message_encryption(password, message)
         binary_represented_message = binary_sequenced(encrypted_message)
-        binary_represented_message = put_message_info(encrypted_message) + binary_represented_message
+        binary_represented_message = calculate_message_info(encrypted_message) + binary_represented_message
         bytes_insertion(image, binary_represented_message)
     except Exception as e:
         print(e)
@@ -380,12 +392,12 @@ def decrypt(image_url: str, password: str) -> None:
         binary_represented_message = bytes_extraction(image_url)
         message = binary_represented_message
         message = message_decryption(password, binary_to_string(binary_represented_message))
-        print("Bip", message)
+        #print("Bip", message)
         message_file = open("secret_message.txt", "bw")
         message_file.write(message)
         message_file.close()
     except Exception as e:
-        print("Hello1", e)
+        print(e)
 
 
 """ Tab Creation """
