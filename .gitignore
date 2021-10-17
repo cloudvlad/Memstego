@@ -1,3 +1,10 @@
 test1.py
 test2.py
-message.txt
+*.txt
+*.png
+.vscode
+__pycache__
+show_bytes.py
+todo.txt
+test_enc_dec.py
+test12.py
