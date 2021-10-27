@@ -4,7 +4,7 @@ import webbrowser
 import json
 import math
 import tkinter as tk
-from tkinter import font
+from tkinter import DoubleVar, font
 from PIL import Image
 from tkinter import ttk, filedialog as fd
 from tkinter.messagebox import showerror
@@ -18,7 +18,7 @@ import os
 import sys
 
 BACKGROUND_COLOR = "#FFFFFF"
-
+SCALE = 1.25
 MODE = AES.MODE_CBC
 IV = "5kj14av0cq19q90b"
 
@@ -27,39 +27,40 @@ IV = "5kj14av0cq19q90b"
 selected_meme_url = ""
 
 def main():
-    # Main window properties
     main = tk.Tk(className="Mem" + "Stego")
-    main.bind('<Control-z>', quit)
-    main.title("MemStego")
-    main.geometry("600x500")
-    main.resizable(False, False)
-    main.configure(background=BACKGROUND_COLOR)
-    main.grid_rowconfigure(0, weight=0)
-    main.grid_columnconfigure(0, weight=1)
-    #icon = ImageTk.PhotoImage(logo)
-    #main.iconphoto(False, icon)
+    try:
+    # Main window properties
+        main.bind('<Control-C>', quit)
+        main.title("MemStego")
+        main.geometry(str(int(600 * SCALE))+"x"+str(int(500 * SCALE)))
+        main.resizable(False, False)
+        main.configure(background=BACKGROUND_COLOR)
+        main.grid_rowconfigure(0, weight=0)
+        main.grid_columnconfigure(0, weight=1)
+        #icon = ImageTk.PhotoImage(logo)
+        #main.iconphoto(False, icon)
+        style = ttk.Style()
+        style.theme_create("MyStyle", parent="alt", settings={
+            "TNotebook": {"configure": {"tabmargins": [2, 5, 2, 0] } },
+            "TNotebook.Tab": {"configure": {"padding": [10, 6],
+                                            "font" : ('Arial', str(int(11 * SCALE)), 'normal')},}})
+        style.theme_use("MyStyle")
 
-    style = ttk.Style()
-    style.theme_create("MyStyle", parent="alt", settings={
-        "TNotebook": {"configure": {"tabmargins": [2, 5, 2, 0] } },
-        "TNotebook.Tab": {"configure": {"padding": [10, 6],
-                                        "font" : ('Arial', '11', 'normal')},}})
-    style.theme_use("MyStyle")
-
-    tabControl = ttk.Notebook(main)
+        tabControl = ttk.Notebook(main)
 
 
-    crypt_tab = create_crypt_tab(main)
-    decrypt_tab = create_decrypt_tab(main)
-    memecrypt_tab = create_memecrypt_tab(main)
+        crypt_tab = create_crypt_tab(main)
+        decrypt_tab = create_decrypt_tab(main)
+        memecrypt_tab = create_memecrypt_tab(main)
 
-    tabControl.add(crypt_tab, text="Crypt")
-    tabControl.add(decrypt_tab, text="Decrypt")
-    tabControl.add(memecrypt_tab, text="MemeCrypt")
+        tabControl.add(crypt_tab, text="Crypt")
+        tabControl.add(decrypt_tab, text="Decrypt")
+        tabControl.add(memecrypt_tab, text="MemeCrypt")
 
-    tabControl.pack(expand=1, fill="both")
-    
-    main.mainloop()
+        tabControl.pack(expand=1, fill="both")
+        main.mainloop()
+    except KeyboardInterrupt:
+        main.destroy()
 
 
 """ Help functions for steganography methods"""
@@ -330,8 +331,8 @@ def generate_meme():
     try:
         all_memes = json.loads((requests.get('https://api.memegen.link/images/').content).decode("utf-8"))
         selected_meme_url = (all_memes[randrange(len(all_memes))])['url']
-        if len(selected_meme_url) > 60:
-            return selected_meme_url[0:57] + "..."
+        if len(selected_meme_url) > 55:
+            return selected_meme_url[0:55] + "..."
         return selected_meme_url
     except Exception as e:
         selected_meme_url = "https://google.com"
@@ -401,78 +402,82 @@ def decrypt(image_url: str, password: str) -> None:
 
 
 """ Tab Creation """
-def create_crypt_tab(root: tk.Tk):
+def create_crypt_tab(root: tk.Tk) -> ttk.Frame:
     frame = ttk.Frame(root)
-    image_url_label = ttk.Label(frame, text="*Select image: ", font=("Arial", 12))
-    image_url_label.place(x=50, y=50, width=200, height=30)
-    image_url = tk.Entry(frame, relief="flat", font=("Arial", 12))
-    image_url.place(x=50, y=80, width=400, height=30)
+    image_url_label = ttk.Label(frame, text="*Select image: ", font=("Arial", int(12 * SCALE)))
+    image_url_label.place(x=50 * SCALE, y=50 * SCALE, width=200 * SCALE, height=30 * SCALE)
+    image_url = tk.Entry(frame, relief="flat", font=("Arial", int(12 * SCALE)))
+    image_url.place(x=50 * SCALE, y=80 * SCALE, width=400 * SCALE, height=30 * SCALE)
     image_selection = tk.Button(frame, text="...", relief="flat", width=1, height=1, background="#FFFFFF", command=lambda: [image_url.delete(0, "end"), image_url.insert(0, select_image())])
-    image_selection.place(x=450, y=80, width=30, height=30)
+    image_selection.place(x=450 * SCALE, y=80 * SCALE, width=30 * SCALE, height=30 * SCALE)
 
-    message_url_label = ttk.Label(frame, text="*Select message (.txt): ", font=("Arial", 12))
-    message_url_label.place(x=50, y=150, width=200, height=30)
-    message_url = tk.Entry(frame, relief="flat", font=("Arial", 12))
-    message_url.place(x=50, y=180, width=400, height=30)
+    message_url_label = ttk.Label(frame, text="*Select message (.txt): ", font=("Arial", int(12 * SCALE)))
+    message_url_label.place(x=50 * SCALE, y=150 * SCALE, width=200 * SCALE, height=30 * SCALE)
+    message_url = tk.Entry(frame, relief="flat", font=("Arial", int(12 * SCALE)))
+    message_url.place(x=50 * SCALE, y=180 * SCALE, width=400 * SCALE, height=30 * SCALE)
     message_selection = tk.Button(frame, text="...", relief="flat", width=1, height=1, background="#FFFFFF", command=lambda: [message_url.delete(0, "end"), message_url.insert(0, select_message())])
-    message_selection.place(x=450, y=180, width=30, height=30)
+    message_selection.place(x=450 * SCALE, y=180 * SCALE, width=30 * SCALE, height=30 * SCALE)
 
-    password_label = ttk.Label(frame, text="Password: ", font=("Arial", 12))
-    password_label.place(x=50, y=250, width=200, height=30)
-    password_field = tk.Entry(frame, relief="flat", font=("Arial", 12))
-    password_field.place(x=50, y=280, width=430, height=30)
+    password_label = ttk.Label(frame, text="Password: ", font=("Arial", int(12 * SCALE)))
+    password_label.place(x=50 * SCALE, y=250 * SCALE, width=200 * SCALE, height=30 * SCALE)
+    password_field = tk.Entry(frame, relief="flat", font=("Arial", int(12 * SCALE)))
+    password_field.place(x=50 * SCALE, y=280 * SCALE, width=430 * SCALE, height=30 * SCALE)
 
     crypt_button = tk.Button(frame, text="Crypt", command=lambda: image_crypt(image_url.get(), message_url.get(), password_field.get()))
-    crypt_button.place(x=50, y=350, width=100, height=35)
+    crypt_button.place(x=50 * SCALE, y=350 * SCALE, width=100 * SCALE, height=35 * SCALE)
 
     return frame
 
-def create_decrypt_tab(root: tk.Tk):
+def create_decrypt_tab(root: tk.Tk) -> ttk.Frame:
     frame = ttk.Frame(root)
-    image_url_label = ttk.Label(frame, text="*Select image: ", font=("Arial", 12))
-    image_url_label.place(x=50, y=50, width=200, height=30)
-    image_url = tk.Entry(frame, relief="flat", font=("Arial", 12))
-    image_url.place(x=50, y=80, width=400, height=30)
+    image_url_label = ttk.Label(frame, text="*Select image: ", font=("Arial", int(12 * SCALE)))
+    image_url_label.place(x=50 * SCALE, y=50 * SCALE, width=200 * SCALE, height=30 * SCALE)
+    image_url = tk.Entry(frame, relief="flat", font=("Arial", int(12 * SCALE)))
+    image_url.place(x=50 * SCALE, y=80 * SCALE, width=400 * SCALE, height=30 * SCALE)
     image_selection = tk.Button(frame, text="...", relief="flat", width=1, height=1, background="#FFFFFF", command=lambda: [image_url.delete(0, "end"), image_url.insert(0, select_image())])
-    image_selection.place(x=450, y=80, width=30, height=30)
+    image_selection.place(x=450 * SCALE, y=80 * SCALE, width=30 * SCALE, height=30 * SCALE)
 
-    password_label = ttk.Label(frame, text="Password: ", font=("Arial", 12))
-    password_label.place(x=50, y=150, width=200, height=30)
-    password_field = tk.Entry(frame, relief="flat", font=("Arial", 12))
-    password_field.place(x=50, y=180, width=430, height=30)
+    password_label = ttk.Label(frame, text="Password: ", font=("Arial", int(12 * SCALE)))
+    password_label.place(x=50 * SCALE, y=150 * SCALE, width=200 * SCALE, height=30 * SCALE)
+    password_field = tk.Entry(frame, relief="flat", font=("Arial", int(12 * SCALE)))
+    password_field.place(x=50 * SCALE, y=180 * SCALE, width=430 * SCALE, height=30 * SCALE)
 
     crypt_button = tk.Button(frame, text="Decrypt", command=lambda: decrypt(image_url.get(), password_field.get()))
-    crypt_button.place(x=50, y=350, width=100, height=35)
+    crypt_button.place(x=50 * SCALE, y=350 * SCALE, width=100 * SCALE, height=35 * SCALE)
 
     return frame
 
-def create_memecrypt_tab(root: tk.Tk):
+def create_memecrypt_tab(root: tk.Tk) -> ttk.Frame:
     frame = ttk.Frame(root)
 
-    meme_url_label = ttk.Label(frame, text="*Select image: ", font=("Arial", 12))
-    meme_url_label.place(x=50, y=50, width=200, height=30)
-    meme_url_link = tk.Label(frame, text="\t\t\t\tChoose a random meme -->", relief="flat", font=("Arial", 10, "underline"), cursor="hand2", anchor="w")
+    meme_url_label = ttk.Label(frame, text="*Select image: ", font=("Arial", int(12 * SCALE)))
+    meme_url_label.place(x=50 * SCALE, y=50 * SCALE, width=200 * SCALE, height=30 * SCALE)
+    meme_url_link = tk.Label(frame, text="Choose a random meme -->", relief="flat", font=("Arial", int(10 * SCALE), "underline"), cursor="hand2", anchor="w")
     meme_url_link.bind("<Button-1>", lambda e: preview_meme())
-    meme_url_link.place(x=50, y=80, width=400, height=30)
+    meme_url_link.place(x=50 * SCALE, y=80 * SCALE, width=400 * SCALE, height=30 * SCALE)
     random_meme_button = tk.Button(frame, text="R", relief="flat", width=1, height=1, background="#FFFFFF", command=lambda: meme_url_link.config(text = generate_meme()))
-    random_meme_button.place(x=450, y=80, width=30, height=30)
+    random_meme_button.place(x=450 * SCALE, y=80 * SCALE, width=30 * SCALE, height=30 * SCALE)
 
-    message_url_label = ttk.Label(frame, text="*Select message (.txt): ", font=("Arial", 12))
-    message_url_label.place(x=50, y=150, width=200, height=30)
-    message_url = tk.Entry(frame, relief="flat", font=("Arial", 12))
-    message_url.place(x=50, y=180, width=400, height=30)
+    message_url_label = ttk.Label(frame, text="*Select message (.txt): ", font=("Arial", int(12 * SCALE)))
+    message_url_label.place(x=50 * SCALE, y=150 * SCALE, width=200 * SCALE, height=30 * SCALE)
+    message_url = tk.Entry(frame, relief="flat", font=("Arial", int(12 * SCALE)))
+    message_url.place(x=50 * SCALE, y=180 * SCALE, width=400 * SCALE, height=30 * SCALE)
     message_selection = tk.Button(frame, text="...", relief="flat", width=1, height=1, background="#FFFFFF", command=lambda: [message_url.delete(0, "end"), message_url.insert(0, select_message())])
-    message_selection.place(x=450, y=180, width=30, height=30)
+    message_selection.place(x=450 * SCALE, y=180 * SCALE, width=30 * SCALE, height=30 * SCALE)
 
-    password_label = ttk.Label(frame, text="Password: ", font=("Arial", 12))
-    password_label.place(x=50, y=250, width=200, height=30)
-    password_field = tk.Entry(frame, relief="flat", font=("Arial", 12))
-    password_field.place(x=50, y=280, width=430, height=30)
+    password_label = ttk.Label(frame, text="Password: ", font=("Arial", int(12 * SCALE)))
+    password_label.place(x=50 * SCALE, y=250 * SCALE, width=200 * SCALE, height=30 * SCALE)
+    password_field = tk.Entry(frame, relief="flat", font=("Arial", int(12 * SCALE)))
+    password_field.place(x=50 * SCALE, y=280 * SCALE, width=430 * SCALE, height=30 * SCALE)
 
     crypt_button = tk.Button(frame, text="Crypt", command=lambda: meme_crypt(message_url.get(), password_field.get()))
-    crypt_button.place(x=50, y=350, width=100, height=35)
+    crypt_button.place(x=50 * SCALE, y=350 * SCALE, width=100 * SCALE, height=35 * SCALE)
 
     return frame
 
+
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except:
+        print("Goodbye!")
