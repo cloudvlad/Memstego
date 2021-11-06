@@ -1,11 +1,10 @@
-import PIL
 import requests
 import webbrowser
 import json
 import math
 import tkinter as tk
 from tkinter import DoubleVar, font
-from PIL import Image
+from PIL import Image, ImageTk
 from tkinter import ttk, filedialog as fd
 from tkinter.messagebox import showerror
 from tkinter.font import BOLD
@@ -15,15 +14,13 @@ import hashlib
 import base64
 from Crypto.Cipher import AES
 import os
-import sys
 
 BACKGROUND_COLOR = "#FFFFFF"
 SCALE = 1.25
 MODE = AES.MODE_CBC
 IV = "5kj14av0cq19q90b"
 
-#logo = ""
-
+logo = Image.open("./media/logo.png")
 selected_meme_url = ""
 
 def main():
@@ -37,8 +34,8 @@ def main():
         main.configure(background=BACKGROUND_COLOR)
         main.grid_rowconfigure(0, weight=0)
         main.grid_columnconfigure(0, weight=1)
-        #icon = ImageTk.PhotoImage(logo)
-        #main.iconphoto(False, icon)
+        icon = ImageTk.PhotoImage(logo)
+        main.iconphoto(False, icon)
         style = ttk.Style()
         style.theme_create("MyStyle", parent="alt", settings={
             "TNotebook": {"configure": {"tabmargins": [2, 5, 2, 0] } },
@@ -58,6 +55,7 @@ def main():
         tabControl.add(memecrypt_tab, text="MemeCrypt")
 
         tabControl.pack(expand=1, fill="both")
+        
         main.mainloop()
     except KeyboardInterrupt:
         main.destroy()
@@ -152,8 +150,6 @@ def message_decryption(password: str, message: str) -> str:
         return utf8_decoded_message.encode()
     except:
         pass
-
-    
 
 # Extract the least significant byte from every pixel 
 def bytes_extraction(image_url: str) -> str:
@@ -470,7 +466,7 @@ def create_memecrypt_tab(root: tk.Tk) -> ttk.Frame:
     password_field = tk.Entry(frame, relief="flat", font=("Arial", int(12 * SCALE)))
     password_field.place(x=50 * SCALE, y=280 * SCALE, width=430 * SCALE, height=30 * SCALE)
 
-    crypt_button = tk.Button(frame, text="Crypt", command=lambda: meme_crypt(message_url.get(), password_field.get()))
+    crypt_button = tk.Button(frame, text="Crypt", font=("Arial", int(12 * SCALE)), command=lambda: meme_crypt(message_url.get(), password_field.get()))
     crypt_button.place(x=50 * SCALE, y=350 * SCALE, width=100 * SCALE, height=35 * SCALE)
 
     return frame
@@ -479,5 +475,5 @@ def create_memecrypt_tab(root: tk.Tk) -> ttk.Frame:
 if __name__ == "__main__":
     try:
         main()
-    except:
+    except KeyboardInterrupt:
         print("Goodbye!")

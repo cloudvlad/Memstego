@@ -1,6 +1,7 @@
 test1.py
 test2.py
-*.txt
+message.txt
+secret_message.txt
 *.png
 .vscode
 __pycache__
@@ -8,3 +9,5 @@ show_bytes.py
 todo.txt
 /tests/
 new_feature/
+media/
+/dep/
