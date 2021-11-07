@@ -16,7 +16,7 @@ from Crypto.Cipher import AES
 import os
 
 BACKGROUND_COLOR = "#FFFFFF"
-SCALE = 1.25
+SCALE = 1.00
 MODE = AES.MODE_CBC
 IV = "5kj14av0cq19q90b"
 
