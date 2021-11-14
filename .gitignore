@@ -2,7 +2,7 @@ test1.py
 test2.py
 message.txt
 secret_message.txt
-*.png
+pip.png
 .vscode
 __pycache__
 show_bytes.py

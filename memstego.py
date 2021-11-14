@@ -20,7 +20,7 @@ SCALE = 1.25
 MODE = AES.MODE_CBC
 IV = "5kj14av0cq19q90b"
 
-logo = Image.open("./media/logo.png")
+logo = Image.open("./logo.png")
 selected_meme_url = ""
 
 def main():
