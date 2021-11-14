@@ -1,5 +1,5 @@
 <p align="center">
-  <img style="filter: invert(75%);" src="https://i.imgur.com/gba7IvL.png" alt="MemStego logo">
+  <img style="filter: invert(50%);" src="https://i.imgur.com/1CrGVqn.png" alt="MemStego logo">
 </p>
 
 # MemStego - Memes, Steganography and a little bit (more)
