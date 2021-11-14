@@ -6,7 +6,7 @@
 ### MemStego hides text in images, making it invisible for the naked eye.
 
 <p align="center">
-  <img src="https://i.imgur.com/RWwb4aN.png" width="100%" alt="---------------------------------------">
+  <img src="https://i.imgur.com/RWwb4aN.png" width="100%" alt="-line separator-">
 </p>
 
 ## :link: Table of Contents
@@ -16,9 +16,10 @@
 *  [:wrench: Usage](#wrench-usage)
 *  [:old_key: Features](#old_key-features)
 *  [:telescope: Technologies Used](#telescope-technologies-used)
+*  [:bulb: Ideas](#bulb-ideas)
 
 <p align="center">
-  <img src="https://i.imgur.com/RWwb4aN.png" width="100%" alt="---------------------------------------">
+  <img src="https://i.imgur.com/RWwb4aN.png" width="100%" alt="-line separator-">
 </p>
 
 ## :page_with_curl: General Information
@@ -26,35 +27,35 @@ Memstego comes from the words “meme” and “steganography”. A meme is typi
 
 
 <p align="center">
-  <img src="https://i.imgur.com/RWwb4aN.png" width="100%" alt="---------------------------------------">
+  <img src="https://i.imgur.com/RWwb4aN.png" width="100%" alt="-line separator-">
 </p>
 
 
 
 ## :camera_flash: Screenshots
 <p align="center">
-<img alt="YAP1" width="30%" src="./media/crypt.png">
-<img alt="YAP2" width="30%" src="./media/decrypt.png">
-<img alt="YAP" width="30%" src="./media/memcrypt.png">
+<img alt="Crypt tab image" width="30%" src="./media/crypt.png">
+<img alt="Decrypt tab image" width="30%" src="./media/decrypt.png">
+<img alt="Memcrypt tab image" width="30%" src="./media/memcrypt.png">
 
 </p>
 
 <p align="center">
-  <img src="https://i.imgur.com/RWwb4aN.png" width="100%" alt="---------------------------------------">
+  <img src="https://i.imgur.com/RWwb4aN.png" width="100%" alt="-line separator-">
 </p>
 
 ## :gear: Setup
 - Clone the project repository
 - Run <kbd>pip install -r requirements.txt</kbd> (Python 2), or <kbd>pip3 install -r requirements.txt</kbd> (Python 3)
 <p align="center">
-  <img src="https://i.imgur.com/RWwb4aN.png" width="100%" alt="---------------------------------------">
+  <img src="https://i.imgur.com/RWwb4aN.png" width="100%" alt="-line separator-">
 </p>
 
 ## :wrench: Usage
  #### Go to the project directory and run<kbd>python3 ./memstego.py</kbd>
 
 <p align="center">
-  <img src="https://i.imgur.com/RWwb4aN.png" width="100%" alt="---------------------------------------">
+  <img src="https://i.imgur.com/RWwb4aN.png" width="100%" alt="-line separator-">
 </p>
 
 ## :old_key: Features
@@ -63,7 +64,7 @@ Memstego comes from the words “meme” and “steganography”. A meme is typi
 - Generate random meme and embed the secret message
 
 <p align="center">
-  <img src="https://i.imgur.com/RWwb4aN.png" width="100%" alt="---------------------------------------">
+  <img src="https://i.imgur.com/RWwb4aN.png" width="100%" alt="-line separator-">
 </p>
 
 ## :telescope: Technologies Used
@@ -73,5 +74,9 @@ Memstego comes from the words “meme” and “steganography”. A meme is typi
 - [Memegen API](https://memegen.link/)
 
 <p align="center">
-  <img src="https://i.imgur.com/RWwb4aN.png" width="100%" alt="---------------------------------------">
+  <img src="https://i.imgur.com/RWwb4aN.png" width="100%" alt="-line separator-">
 </p>
+
+## :bulb: Ideas
+- More image format support
+- Interface customization
