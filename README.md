@@ -34,7 +34,7 @@ Memstego comes from the words “meme” and “steganography”. A meme is typi
 ## :camera_flash: Screenshots
 <p align="center">
 <img alt="YAP1" width="30%" src="./media/crypt.png">
-<img alt="YAP" width="30%" src="./media/decrypt.png">
+<img alt="YAP2" width="30%" src="./media/decrypt.png">
 <img alt="YAP" width="30%" src="./media/memcrypt.png">
 
 </p>
