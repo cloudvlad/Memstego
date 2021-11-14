@@ -16,7 +16,7 @@ from Crypto.Cipher import AES
 import os
 
 BACKGROUND_COLOR = "#FFFFFF"
-SCALE = 1.00
+SCALE = 1.25
 MODE = AES.MODE_CBC
 IV = "5kj14av0cq19q90b"
 
@@ -400,14 +400,14 @@ def decrypt(image_url: str, password: str) -> None:
 """ Tab Creation """
 def create_crypt_tab(root: tk.Tk) -> ttk.Frame:
     frame = ttk.Frame(root)
-    image_url_label = ttk.Label(frame, text="*Select image: ", font=("Arial", int(12 * SCALE)))
+    image_url_label = ttk.Label(frame, text="*Select image(*.png): ", font=("Arial", int(12 * SCALE)))
     image_url_label.place(x=50 * SCALE, y=50 * SCALE, width=200 * SCALE, height=30 * SCALE)
     image_url = tk.Entry(frame, relief="flat", font=("Arial", int(12 * SCALE)))
     image_url.place(x=50 * SCALE, y=80 * SCALE, width=400 * SCALE, height=30 * SCALE)
     image_selection = tk.Button(frame, text="...", relief="flat", width=1, height=1, background="#FFFFFF", command=lambda: [image_url.delete(0, "end"), image_url.insert(0, select_image())])
     image_selection.place(x=450 * SCALE, y=80 * SCALE, width=30 * SCALE, height=30 * SCALE)
 
-    message_url_label = ttk.Label(frame, text="*Select message (.txt): ", font=("Arial", int(12 * SCALE)))
+    message_url_label = ttk.Label(frame, text="*Select message: ", font=("Arial", int(12 * SCALE)))
     message_url_label.place(x=50 * SCALE, y=150 * SCALE, width=200 * SCALE, height=30 * SCALE)
     message_url = tk.Entry(frame, relief="flat", font=("Arial", int(12 * SCALE)))
     message_url.place(x=50 * SCALE, y=180 * SCALE, width=400 * SCALE, height=30 * SCALE)
@@ -419,14 +419,14 @@ def create_crypt_tab(root: tk.Tk) -> ttk.Frame:
     password_field = tk.Entry(frame, relief="flat", font=("Arial", int(12 * SCALE)))
     password_field.place(x=50 * SCALE, y=280 * SCALE, width=430 * SCALE, height=30 * SCALE)
 
-    crypt_button = tk.Button(frame, text="Crypt", command=lambda: image_crypt(image_url.get(), message_url.get(), password_field.get()))
+    crypt_button = tk.Button(frame, text="Crypt", font=("Arial", int(12 * SCALE)), command=lambda: image_crypt(image_url.get(), message_url.get(), password_field.get()))
     crypt_button.place(x=50 * SCALE, y=350 * SCALE, width=100 * SCALE, height=35 * SCALE)
 
     return frame
 
 def create_decrypt_tab(root: tk.Tk) -> ttk.Frame:
     frame = ttk.Frame(root)
-    image_url_label = ttk.Label(frame, text="*Select image: ", font=("Arial", int(12 * SCALE)))
+    image_url_label = ttk.Label(frame, text="*Select image(*.png): ", font=("Arial", int(12 * SCALE)))
     image_url_label.place(x=50 * SCALE, y=50 * SCALE, width=200 * SCALE, height=30 * SCALE)
     image_url = tk.Entry(frame, relief="flat", font=("Arial", int(12 * SCALE)))
     image_url.place(x=50 * SCALE, y=80 * SCALE, width=400 * SCALE, height=30 * SCALE)
@@ -438,7 +438,7 @@ def create_decrypt_tab(root: tk.Tk) -> ttk.Frame:
     password_field = tk.Entry(frame, relief="flat", font=("Arial", int(12 * SCALE)))
     password_field.place(x=50 * SCALE, y=180 * SCALE, width=430 * SCALE, height=30 * SCALE)
 
-    crypt_button = tk.Button(frame, text="Decrypt", command=lambda: decrypt(image_url.get(), password_field.get()))
+    crypt_button = tk.Button(frame, text="Decrypt", font=("Arial", int(12 * SCALE)), command=lambda: decrypt(image_url.get(), password_field.get()))
     crypt_button.place(x=50 * SCALE, y=350 * SCALE, width=100 * SCALE, height=35 * SCALE)
 
     return frame
@@ -454,7 +454,7 @@ def create_memecrypt_tab(root: tk.Tk) -> ttk.Frame:
     random_meme_button = tk.Button(frame, text="R", relief="flat", width=1, height=1, background="#FFFFFF", command=lambda: meme_url_link.config(text = generate_meme()))
     random_meme_button.place(x=450 * SCALE, y=80 * SCALE, width=30 * SCALE, height=30 * SCALE)
 
-    message_url_label = ttk.Label(frame, text="*Select message (.txt): ", font=("Arial", int(12 * SCALE)))
+    message_url_label = ttk.Label(frame, text="*Select message: ", font=("Arial", int(12 * SCALE)))
     message_url_label.place(x=50 * SCALE, y=150 * SCALE, width=200 * SCALE, height=30 * SCALE)
     message_url = tk.Entry(frame, relief="flat", font=("Arial", int(12 * SCALE)))
     message_url.place(x=50 * SCALE, y=180 * SCALE, width=400 * SCALE, height=30 * SCALE)
