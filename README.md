@@ -1,5 +1,5 @@
 <p align="center">
-  <img style="filter: invert(75%);" src="./media/logo.png" alt="Cloudius logo">
+  <img style="filter: invert(75%);" src="https://i.imgur.com/gba7IvL.png" alt="MemStego logo">
 </p>
 
 # MemStego - Memes, Steganography and a little bit (more)
@@ -34,9 +34,9 @@ Memstego comes from the words “meme” and “steganography”. A meme is typi
 
 ## :camera_flash: Screenshots
 <p align="center">
-<img alt="Crypt tab image" width="30%" src="./media/crypt.png">
-<img alt="Decrypt tab image" width="30%" src="./media/decrypt.png">
-<img alt="Memcrypt tab image" width="30%" src="./media/memcrypt.png">
+<img alt="Crypt tab image" width="30%" src="https://i.imgur.com/4JAp3OH.png">
+<img alt="Decrypt tab image" width="30%" src="https://i.imgur.com/ICgSXO4.png">
+<img alt="Memcrypt tab image" width="30%" src="https://i.imgur.com/rMFdgks.png">
 
 </p>
 
