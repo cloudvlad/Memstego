@@ -12,6 +12,7 @@
 ## :link: Table of Contents
 *  [:page_with_curl: General Information](#page_with_curl-general-information)
 *  [:camera_flash: Screenshots](#camera_flash-screenshots)
+*  [:film_strip: CS50 Demo Video](#cs50-demo-video)
 *  [:gear: Setup](#gear-setup)
 *  [:wrench: Usage](#wrench-usage)
 *  [:old_key: Features](#old_key-features)
@@ -37,8 +38,13 @@ Memstego comes from the words “meme” and “steganography”. A meme is typi
 <img alt="Crypt tab image" width="30%" src="https://i.imgur.com/4JAp3OH.png">
 <img alt="Decrypt tab image" width="30%" src="https://i.imgur.com/ICgSXO4.png">
 <img alt="Memcrypt tab image" width="30%" src="https://i.imgur.com/rMFdgks.png">
-
 </p>
+
+<p align="center">
+  <img src="https://i.imgur.com/EOSOz8T.png" width="100%" alt="-line separator-">
+</p>
+
+## :film_strip: CS50 Demo Video - [YouTube Video](https://youtu.be/O9hoZCktR8g)
 
 <p align="center">
   <img src="https://i.imgur.com/EOSOz8T.png" width="100%" alt="-line separator-">

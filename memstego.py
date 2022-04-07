@@ -389,7 +389,6 @@ def decrypt(image_url: str, password: str) -> None:
         binary_represented_message = bytes_extraction(image_url)
         message = binary_represented_message
         message = message_decryption(password, binary_to_string(binary_represented_message))
-        #print("Bip", message)
         message_file = open("secret_message.txt", "bw")
         message_file.write(message)
         message_file.close()
